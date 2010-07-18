@@ -3,14 +3,7 @@ package Sorter;
 use strict;
 use warnings;
 use base 'Class::Accessor';
-
-sub values {
-	my $self = shift;
-	if(@_) {
-		$self->{values} = $_[0];
-	}
-	$self->{values};
-}
+Sorter->mk_accessors(qw(values));
 
 sub new {
 	my $self = shift;
