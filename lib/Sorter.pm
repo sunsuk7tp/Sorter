@@ -7,12 +7,13 @@ Sorter->mk_accessors(qw(values));
 
 sub new {
     my $self = shift;
-    $self->SUPER::new({values=>[], @_});
+    $self->SUPER::new({values=>[]});
 }
 
 sub set_values {
     my $self = shift;
     $self->values([@_]);
+    $self;
 }
 
 sub get_values {
@@ -20,23 +21,18 @@ sub get_values {
     @{$self->values};
 }
 
-sub sort {
+sub sort { &_sort->get_values; }
+
+sub _sort {
     my $self = shift;
     my @values = $self->get_values;
-    if(scalar @values <= 1) {
-	$self->get_values;
-    } else {
-	my $root = shift @values;
-
-	my $lleaf = __PACKAGE__->new;
-	my $rleaf = __PACKAGE__->new;
-	$lleaf->set_values(grep {$_ < $root} @values);
-	$rleaf->set_values(grep {$_ >= $root} @values);
-	$lleaf->sort;
-	$rleaf->sort;
-		
-	$self->set_values($lleaf->get_values, $root, $rleaf->get_values);
-    }
+    my $root = shift @values;
+    $self->set_values (
+	__PACKAGE__->new->set_values(grep {$_ < $root} @values)->_sort->get_values,
+	$root,
+	__PACKAGE__->new->set_values(grep {$_ >= $root} @values)->_sort->get_values
+	) if scalar @values;
+    $self;
 }
 
 1;
